@@ -20,6 +20,7 @@ button{cursor:pointer}
 .main{flex:1;min-width:0;display:flex;flex-direction:column;padding:18px;background:var(--bg)}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
 .brand h1{font-size:1.05rem;color:var(--accent)}
+.brand-actions{display:flex;gap:6px;align-items:center}
 button,.btn{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 10px;transition:.2s}
 button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 .primary{width:100%;border-color:var(--accent);color:var(--accent);font-weight:bold}
@@ -74,6 +75,9 @@ button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 .toast.show{display:block}
 .version{border:1px solid var(--border);padding:8px;border-radius:6px;margin-bottom:6px}
 .version small{color:var(--muted)}
+/* User Profile Widget Styles */
+.user-widget{display:flex;align-items:center;gap:6px;background:var(--input);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:.75rem}
+.user-widget img{width:22px;height:22px;border-radius:50%}
 @media(max-width:768px){
  body{overflow:auto;height:auto}.app{display:block;height:auto}.sidebar{width:100%;min-width:0;max-height:none;border-left:0;border-bottom:2px solid var(--border)}
  .main{height:calc(100vh - 20px);min-height:560px;padding:12px}.header{align-items:flex-start}.actions{justify-content:flex-start}
@@ -85,7 +89,16 @@ button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 <body>
 <div class="app">
 <aside class="sidebar" id="sidebar">
- <div class="brand"><h1>// DEV_NOTE v3.0</h1><button onclick="toggleTheme()" id="themeBtn">🌙</button></div>
+ <div class="brand">
+  <h1>// DEV_NOTE v3.0</h1>
+  <div class="brand-actions">
+   <!-- زر تسجيل الدخول/الخروج المدمج -->
+   <div id="authContainer">
+    <button onclick="loginWithGoogle()" id="googleLoginBtn" style="font-size:0.75rem; padding:5px 8px;">G دخول</button>
+   </div>
+   <button onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </div>
+ </div>
  <div class="form">
   <input id="titleInput" placeholder="اسم المشروع...">
   <input id="descInput" placeholder="وصف المشروع (اختياري)...">
@@ -130,6 +143,65 @@ button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
+
+<!-- سكربت Firebase وتسجيل الدخول -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA-QGoCGuVpNSRjtlczUEeNiP4gU-h4T8A",
+  authDomain: "ndndev-note.firebaseapp.com",
+  projectId: "ndndev-note",
+  storageBucket: "ndndev-note.firebasestorage.app",
+  messagingSenderId: "534354689879",
+  appId: "1:534354689879:web:9a0b0d68482143278d8812",
+  measurementId: "G-5G7PCGBRGN"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// دوال المصادقة العامة المتاحة للنوافذ والأزرار
+window.loginWithGoogle = function() {
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            toast('تم تسجيل الدخول بنجاح ✅');
+        })
+        .catch((error) => {
+            console.error("خطأ تسجيل الدخول:", error.message);
+            toast('خطأ في تسجيل الدخول');
+        });
+};
+
+window.logoutUser = function() {
+    signOut(auth).then(() => {
+        toast('تم تسجيل الخروج');
+    }).catch((error) => {
+        console.error("خطأ تسجيل الخروج", error);
+    });
+};
+
+// تحديث واجهة المستخدم حسب حالة الحساب
+onAuthStateChanged(auth, (user) => {
+    const authContainer = document.getElementById('authContainer');
+    if (user) {
+        const firstName = user.displayName ? user.displayName.split(' ')[0] : 'مستخدم';
+        authContainer.innerHTML = `
+            <div class="user-widget" title="${esc(user.displayName)} (${user.email})">
+                ${user.photoURL ? `<img src="${user.photoURL}" alt="User">` : ''}
+                <span>${esc(firstName)}</span>
+                <button class="icon" onclick="logoutUser()" title="تسجيل الخروج" style="color:var(--danger); font-size:0.7rem;">🚪</button>
+            </div>
+        `;
+    } else {
+        authContainer.innerHTML = `<button onclick="loginWithGoogle()" id="googleLoginBtn" style="font-size:0.75rem; padding:5px 8px;">G دخول</button>`;
+    }
+});
+</script>
 
 <script>
 const KEY='devNotes';
