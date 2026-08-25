@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117">
+<title>DEV_NOTE v3.0 — مدير أكواد المطور</title>
+<style>
+:root{
+ --bg:#0d1117;--panel:#161b22;--input:#21262d;--code:#05070a;--text:#c9d1d9;
+ --muted:#6e7681;--border:#30363d;--accent:#00ff66;--danger:#ff7b72;--blue:#58a6ff;
+}
+[data-theme="dracula"]{--bg:#282a36;--panel:#1e1f2b;--input:#363847;--code:#1a1b26;--text:#f8f8f2;--muted:#8b8d9b;--border:#44475a;--accent:#bd93f9;--danger:#ff5555;--blue:#8be9fd}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Courier New",monospace;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;height:100vh}
+.sidebar{width:340px;min-width:340px;background:var(--panel);border-left:2px solid var(--border);padding:14px;display:flex;flex-direction:column;overflow:auto}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;padding:18px;background:var(--bg)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.brand h1{font-size:1.05rem;color:var(--accent)}
+button,.btn{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 10px;transition:.2s}
+button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
+.primary{width:100%;border-color:var(--accent);color:var(--accent);font-weight:bold}
+.primary:hover{background:var(--accent);color:var(--bg)}
+.form input,.form textarea,.form select,.search{width:100%;background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:9px;margin-bottom:8px;outline:none}
+.form input:focus,.form textarea:focus,.form select:focus,.search:focus{border-color:var(--accent)}
+.form textarea{resize:vertical;min-height:80px}
+.row{display:flex;gap:7px}
+.row>*{flex:1}
+.search{margin-top:10px}
+.filters{display:flex;gap:6px;margin:7px 0;overflow:auto}
+.filter{white-space:nowrap;font-size:.72rem}
+.filter.active{border-color:var(--accent);color:var(--accent)}
+.notes{flex:1;overflow:auto;margin-top:5px}
+.note{border:1px solid var(--border);background:var(--input);border-radius:7px;padding:9px;margin-bottom:7px;display:flex;gap:8px;align-items:center}
+.note.active{border-color:var(--accent)}
+.note.pinned{box-shadow:inset -3px 0 var(--accent)}
+.note-main{min-width:0;flex:1;cursor:pointer}
+.note-title{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-meta{font-size:.68rem;color:var(--muted);margin-top:5px}
+.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.badge{font-size:.65rem;padding:2px 5px;border-radius:4px;background:var(--border);color:var(--blue)}
+.icon{border:0;padding:3px;background:transparent}
+.icon.fav{color:#ffd33d}.icon.pin{color:var(--accent)}
+.stats{border-top:1px solid var(--border);padding-top:9px;margin-top:8px;font-size:.7rem;display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.stats b{color:var(--accent)}
+.backup{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:11px;margin-bottom:10px}
+.title-area{display:flex;align-items:center;gap:8px;min-width:0}
+#viewTitle{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{color:var(--accent);font-size:.75rem}
+.actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.editor-tools{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.tool{font-size:.72rem}
+.code-wrap{flex:1;min-height:0;background:var(--code);border:1px solid var(--border);border-radius:8px;overflow:auto;display:flex}
+.line-nos{padding:14px 9px;text-align:right;color:#4b5563;border-left:1px solid var(--border);user-select:none;line-height:1.6;font-size:var(--code-size,.88rem)}
+.code-box{padding:14px;min-width:0;flex:1;overflow:auto}
+.code-display{margin:0;color:#e6edf3;font-size:var(--code-size,.88rem);line-height:1.6;white-space:pre;tab-size:4}
+.code-edit{width:100%;height:100%;min-height:300px;background:transparent;border:0;outline:0;color:#e6edf3;resize:none;font-size:var(--code-size,.88rem);line-height:1.6;white-space:pre;tab-size:4}
+.wrap .code-display,.wrap .code-edit{white-space:pre-wrap;overflow-wrap:anywhere}
+.hl-key{color:#ff7b72}.hl-str{color:#a5d6ff}.hl-num{color:#79c0ff}.hl-com{color:#8b949e;font-style:italic}.hl-fn{color:#d2a8ff}.hl-tag{color:#7ee787}
+.modal-bg{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:15px;z-index:20}
+.modal-bg.show{display:flex}
+.modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:15px}
+.modal h2{color:var(--accent);margin-bottom:10px;font-size:1rem}
+.modal textarea,.modal input,.modal select{width:100%;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:9px;margin-bottom:8px;outline:0}
+.modal textarea{min-height:300px}
+.palette-item{padding:10px;border:1px solid transparent;border-radius:6px;cursor:pointer}.palette-item:hover{border-color:var(--accent);color:var(--accent)}
+.preview{width:100%;height:65vh;background:white;border:0;border-radius:6px}
+.empty{padding:25px;text-align:center;color:var(--muted);font-size:.8rem}
+.toast{position:fixed;bottom:18px;left:18px;background:var(--panel);border:1px solid var(--accent);color:var(--text);padding:10px 14px;border-radius:7px;display:none;z-index:50}
+.toast.show{display:block}
+.version{border:1px solid var(--border);padding:8px;border-radius:6px;margin-bottom:6px}
+.version small{color:var(--muted)}
+@media(max-width:768px){
+ body{overflow:auto;height:auto}.app{display:block;height:auto}.sidebar{width:100%;min-width:0;max-height:none;border-left:0;border-bottom:2px solid var(--border)}
+ .main{height:calc(100vh - 20px);min-height:560px;padding:12px}.header{align-items:flex-start}.actions{justify-content:flex-start}
+ .mobile-menu{display:block!important}
+}
+.mobile-menu{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><h1>// DEV_NOTE v3.0</h1><button onclick="toggleTheme()" id="themeBtn">🌙</button></div>
+ <div class="form">
+  <input id="titleInput" placeholder="اسم المشروع...">
+  <input id="descInput" placeholder="وصف المشروع (اختياري)...">
+  <select id="typeInput"><option>HTML / JS</option><option>CSS</option><option>C++ / GML</option><option>Python</option><option>JavaScript</option><option>TypeScript</option><option>JSON</option><option>SQL</option><option>Other</option></select>
+  <input id="tagsInput" placeholder="وسوم: لعبة, api, frontend">
+  <textarea id="codeInput" placeholder="ضع الكود هنا..."></textarea>
+  <button class="primary" onclick="saveCode()">[+] حفظ المشروع</button>
+ </div>
+ <input class="search" id="searchInput" placeholder="🔍 ابحث في الاسم أو الوسوم أو الكود..." oninput="renderNotes()">
+ <div class="filters" id="filters"></div>
+ <div class="notes" id="notesList"></div>
+ <div class="stats">
+  <div>المشاريع: <b id="projectCount">0</b></div><div>الأسطر: <b id="totalLines">0</b></div>
+  <div>المفضلة: <b id="favCount">0</b></div><div>المثبتة: <b id="pinCount">0</b></div>
+  <div>الأكثر استخدامًا: <b id="topType">—</b></div><div>آخر تعديل: <b id="lastEdit">—</b></div>
+ </div>
+ <div class="backup">
+  <button onclick="exportJSON()">📤 JSON</button><button onclick="document.getElementById('importFile').click()">📥 استيراد</button>
+  <button onclick="exportAll()">📦 تصدير الكل</button><button onclick="openSettings()">⚙️ إعدادات</button>
+  <input type="file" id="importFile" accept=".json" hidden onchange="importJSON(event)">
+ </div>
+</aside>
+
+<main class="main">
+ <div class="header">
+  <div class="title-area"><button class="mobile-menu" onclick="scrollSidebar()">☰</button><button id="backBtn" onclick="goBack()" style="display:none">←</button><h2 id="viewTitle">اختر مشروعًا</h2><span id="viewTag" class="tag"></span></div>
+  <div class="actions">
+   <button id="editBtn" onclick="toggleEdit()" style="display:none">✏️ تعديل</button>
+   <button onclick="copyCode()">📋 نسخ</button><button onclick="shareCode()">🔗 مشاركة</button>
+  </div>
+ </div>
+ <div class="editor-tools">
+  <button class="tool" onclick="changeFont(-1)">A−</button><button class="tool" onclick="changeFont(1)">A+</button>
+  <button class="tool" onclick="toggleWrap()" id="wrapBtn">↔️ التفاف: OFF</button>
+  <button class="tool" onclick="toggleFullscreen()">⛶ ملء الشاشة</button>
+  <button class="tool" id="runBtn" onclick="runPreview()" style="display:none">▶️ تشغيل Preview</button>
+  <button class="tool" id="versionsBtn" onclick="openVersions()" style="display:none">🕒 الإصدارات</button>
+ </div>
+ <div class="code-wrap" id="codeWrap"><div class="line-nos" id="lineNos">1</div><div class="code-box" id="codeBox"><pre class="code-display" id="codeDisplay">// أضف مشروعًا من القائمة الجانبية.</pre></div></div>
+</main>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='devNotes';
+let notes=JSON.parse(localStorage.getItem(KEY)||'[]').map(normalize);
+let activeId=null,isEditing=false,theme=localStorage.getItem('devTheme')||'matrix',fontSize=+(localStorage.getItem('devFont')||.88),wrap=false;
+let activeFilter='all';
+
+function normalize(n){return {id:n.id||Date.now()+Math.random(),title:n.title||'بدون عنوان',type:n.type||'Other',code:n.code||'',desc:n.desc||'',tags:Array.isArray(n.tags)?n.tags:(n.tags?String(n.tags).split(',').map(x=>x.trim()).filter(Boolean):[]),favorite:!!n.favorite,pinned:!!n.pinned,createdAt:n.createdAt||Date.now(),updatedAt:n.updatedAt||n.createdAt||Date.now(),versions:Array.isArray(n.versions)?n.versions:[]}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(notes));updateStats()}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function saveCode(){
+ const titleInput = document.getElementById('titleInput');
+ const descInput = document.getElementById('descInput');
+ const typeInput = document.getElementById('typeInput');
+ const tagsInput = document.getElementById('tagsInput');
+ const codeInput = document.getElementById('codeInput');
+
+ const title=titleInput.value.trim(),code=codeInput.value;
+ if(!title||!code.trim())return alert('أدخل اسم المشروع والكود.');
+ const n=normalize({id:Date.now(),title,desc:descInput.value.trim(),type:typeInput.value,code,tags:tagsInput.value.split(',').map(x=>x.trim()).filter(Boolean),createdAt:Date.now(),updatedAt:Date.now(),versions:[]});
+ notes.unshift(n);persist();titleInput.value=descInput.value=tagsInput.value=codeInput.value='';renderNotes();displayCode(n.id);toast('تم حفظ المشروع ✅')
+}
+function renderFilters(){
+ const tags=[...new Set(notes.flatMap(n=>n.tags))].slice(0,20);
+ document.getElementById('filters').innerHTML='<button class="filter '+(activeFilter==='all'?'active':'')+'" onclick="setFilter(\'all\')">الكل</button><button class="filter '+(activeFilter==='fav'?'active':'')+'" onclick="setFilter(\'fav\')">⭐ المفضلة</button><button class="filter '+(activeFilter==='pin'?'active':'')+'" onclick="setFilter(\'pin\')">📌 المثبتة</button>'+tags.map(t=>`<button class="filter ${activeFilter===t?'active':''}" onclick="setFilter(${JSON.stringify(t)})">#${esc(t)}</button>`).join('')
+}
+function setFilter(f){activeFilter=f;renderNotes()}
+function renderNotes(){
+ renderFilters();const q=document.getElementById('searchInput').value.trim().toLowerCase();
+ let arr=notes.filter(n=>(activeFilter==='all'||(activeFilter==='fav'&&n.favorite)||(activeFilter==='pin'&&n.pinned)||n.tags.includes(activeFilter))&&(!q||(n.title+' '+n.type+' '+n.desc+' '+n.tags.join(' ')+' '+n.code).toLowerCase().includes(q)));
+ arr.sort((a,b)=>(b.pinned-a.pinned)||(b.updatedAt-a.updatedAt));
+ document.getElementById('notesList').innerHTML=arr.length?arr.map(n=>`<div class="note ${n.id===activeId?'active':''} ${n.pinned?'pinned':''}">
+ <div class="note-main" onclick="displayCode(${n.id})"><div class="note-title">${esc(n.title)}</div><div class="badges"><span class="badge">${esc(n.type)}</span>${n.tags.slice(0,3).map(t=>`<span class="badge">#${esc(t)}</span>`).join('')}</div><div class="note-meta">${new Date(n.updatedAt).toLocaleString('ar-TN')}</div></div>
+ <button class="icon fav" onclick="event.stopPropagation();toggleFav(${n.id})">${n.favorite?'★':'☆'}</button><button class="icon pin" onclick="event.stopPropagation();togglePin(${n.id})">${n.pinned?'📌':'📍'}</button><button class="icon" onclick="event.stopPropagation();deleteCode(${n.id})">🗑️</button></div>`).join(''):'<div class="empty">لا توجد نتائج.</div>';
+ updateStats()
+}
+function updateStats(){
+ document.getElementById('projectCount').textContent=notes.length;
+ document.getElementById('totalLines').textContent=notes.reduce((s,n)=>s+(n.code?n.code.split('\n').length:0),0);
+ document.getElementById('favCount').textContent=notes.filter(n=>n.favorite).length;
+ document.getElementById('pinCount').textContent=notes.filter(n=>n.pinned).length;
+ const c={};notes.forEach(n=>c[n.type]=(c[n.type]||0)+1);
+ document.getElementById('topType').textContent=Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||'—';
+ document.getElementById('lastEdit').textContent=notes.length?new Date(Math.max(...notes.map(n=>n.updatedAt))).toLocaleDateString('ar-TN'):'—'
+}
+function displayCode(id){
+ activeId=id;const n=notes.find(x=>x.id===id);if(!n)return;
+ document.getElementById('viewTitle').textContent='>_ '+n.title;
+ document.getElementById('viewTag').textContent='['+n.type+']';
+ document.getElementById('backBtn').style.display='inline-block';
+ document.getElementById('editBtn').style.display='inline-block';
+ document.getElementById('versionsBtn').style.display='inline-block';
+ document.getElementById('runBtn').style.display=/HTML|JavaScript|JS/i.test(n.type)?'inline-block':'none';
+ document.getElementById('codeBox').innerHTML=`<pre class="code-display" id="codeDisplay">${highlight(n.code,n.type)}</pre>`;
+ updateLines(n.code);renderNotes();
+}
+function highlight(code,type){
+ let x=esc(code);
+ const isHTML=/HTML/i.test(type), isPy=/Python/i.test(type), isSQL=/SQL/i.test(type);
+ if(isHTML){x=x.replace(/(&lt;\/?)([\w-]+)([^&]*?)(\/?>)/g,'<span class="hl-tag">$1$2$3$4</span>')}
+ x=x.replace(/(\/\/.*|#.*|\/\*[\s\S]*?\*\/)/g,'<span class="hl-com">$1</span>');
+ x=x.replace(/(["'`])(?:\\.|(?!\1).)*?\1/g,'<span class="hl-str">$&</span>');
+ const kw=isPy?'and|as|assert|break|class|def|elif|else|for|from|if|import|in|is|lambda|not|or|pass|return|try|while|with|yield':'const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|true|false|null|undefined|public|private|void|int|float|bool|using|namespace|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE';
+ x=x.replace(new RegExp('\\b('+kw+')\\b','g'),'<span class="hl-key">$1</span>');
+ x=x.replace(/\b\d+(?:\.\d+)?\b/g,'<span class="hl-num">$&</span>');
+ x=x.replace(/\b([A-Za-z_$][\w$]*)\s*(?=\()/g,'<span class="hl-fn">$1</span>');
+ return x
+}
+function updateLines(code){
+ const c=code?code.split('\n').length:1;
+ document.getElementById('lineNos').innerHTML=Array.from({length:c},(_,i)=>i+1).join('<br>');
+ document.documentElement.style.setProperty('--code-size',fontSize+'rem')
+}
+function toggleFav(id){const n=notes.find(x=>x.id===id);n.favorite=!n.favorite;n.updatedAt=Date.now();persist();renderNotes()}
+function togglePin(id){const n=notes.find(x=>x.id===id);n.pinned=!n.pinned;n.updatedAt=Date.now();persist();renderNotes()}
+function deleteCode(id){if(!confirm('حذف المشروع؟'))return;notes=notes.filter(n=>n.id!==id);persist();if(activeId===id)goBack();renderNotes();toast('تم الحذف')}
+function goBack(){
+ activeId=null;
+ document.getElementById('viewTitle').textContent='اختر مشروعًا';
+ document.getElementById('viewTag').textContent='';
+ document.getElementById('backBtn').style.display='none';
+ document.getElementById('editBtn').style.display='none';
+ document.getElementById('runBtn').style.display='none';
+ document.getElementById('versionsBtn').style.display='none';
+ document.getElementById('codeBox').innerHTML='<pre class="code-display">// أضف مشروعًا من القائمة الجانبية.</pre>';
+ document.getElementById('lineNos').textContent='1';
+ renderNotes()
+}
+function toggleEdit(){
+ const n=notes.find(x=>x.id===activeId);if(!n)return;
+ if(isEditing){saveEdit();return} isEditing=true;document.getElementById('editBtn').textContent='💾 حفظ';
+ document.getElementById('codeBox').innerHTML=`<textarea class="code-edit" id="codeEdit">${esc(n.code)}</textarea>`;
+ document.getElementById('codeEdit').value=n.code;
+}
+function saveEdit(){
+ const n=notes.find(x=>x.id===activeId),area=document.getElementById('codeEdit');if(!n||!area)return;
+ if(n.code!==area.value)n.versions.unshift({code:n.code,date:n.updatedAt});
+ n.code=area.value;n.updatedAt=Date.now();isEditing=false;document.getElementById('editBtn').textContent='✏️ تعديل';persist();displayCode(n.id);toast('تم حفظ التعديل 💾')
+}
+function copyCode(){const n=notes.find(x=>x.id===activeId);if(!n)return;navigator.clipboard?.writeText(n.code).then(()=>toast('تم النسخ 📋')).catch(()=>alert('تعذر النسخ تلقائيًا.'))}
+async function shareCode(){const n=notes.find(x=>x.id===activeId);if(!n)return;const text=`${n.title}\n\n${n.code}`;if(navigator.share){try{await navigator.share({title:n.title,text})}catch(e){}}else{await navigator.clipboard.writeText(text);toast('تم نسخ النص للمشاركة')}}
+function changeFont(v){fontSize=Math.min(1.5,Math.max(.6,fontSize+v*.08));localStorage.setItem('devFont',fontSize);document.documentElement.style.setProperty('--code-size',fontSize+'rem')}
+function toggleWrap(){wrap=!wrap;document.getElementById('codeWrap').classList.toggle('wrap',wrap);document.getElementById('wrapBtn').textContent='↔️ التفاف: '+(wrap?'ON':'OFF')}
+function toggleFullscreen(){const el=document.querySelector('.code-wrap');document.fullscreenElement?document.exitFullscreen():el.requestFullscreen?.()}
+function runPreview(){
+ const n=notes.find(x=>x.id===activeId);if(!n)return;
+ let src=n.code;
+ if(!/<html/i.test(src))src=`<!doctype html><html><head><meta charset="utf-8"></head><body><script>${src.replace(/<\/script/gi,'<\\/script')}<\/script></body></html>`;
+ openModal(`<h2>▶️ Preview</h2><iframe class="preview" sandbox="allow-scripts" srcdoc="${esc(src)}"></iframe><br><button onclick="closeModal()">إغلاق</button>`)
+}
+function openVersions(){
+ const n=notes.find(x=>x.id===activeId);if(!n)return;
+ openModal(`<h2>🕒 سجل الإصدارات</h2>${n.versions.length?n.versions.map((v,i)=>`<div class="version"><b>الإصدار السابق #${i+1}</b><br><small>${new Date(v.date).toLocaleString('ar-TN')}</small><br><button onclick="restoreVersion(${i})">استعادة</button><button onclick="viewVersion(${i})">عرض</button></div>`).join(''):'<div class="empty">لا توجد إصدارات سابقة.</div>'}<button onclick="closeModal()">إغلاق</button>`)
+}
+function viewVersion(i){const n=notes.find(x=>x.id===activeId),v=n.versions[i];openModal(`<h2>الإصدار السابق</h2><textarea readonly>${esc(v.code)}</textarea><button onclick="closeModal()">إغلاق</button>`)}
+function restoreVersion(i){const n=notes.find(x=>x.id===activeId),v=n.versions[i];n.versions.unshift({code:n.code,date:Date.now()});n.code=v.code;n.updatedAt=Date.now();persist();closeModal();displayCode(n.id);toast('تمت الاستعادة')}
+function exportJSON(){if(!notes.length)return alert('لا توجد مشاريع.');download('devnote_backup.json',JSON.stringify(notes,null,2),'application/json')}
+function exportAll(){
+ if(!notes.length)return alert('لا توجد مشاريع.');
+ let files=notes.map(n=>`===== ${n.title} =====\n${n.code}`).join('\n\n');
+ download('devnote_all.txt',files,'text/plain')
+}
+function download(name,data,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function importJSON(e){
+ const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x))throw Error('صيغة غير صحيحة');x.forEach(n=>notes.push(normalize({...n,id:Date.now()+Math.random()})));persist();renderNotes();toast('تم الاستيراد 📥')}catch(err){alert('خطأ: '+err.message)}e.target.value=''};r.readAsText(f)
+}
+function openSettings(){
+ openModal(`<h2>⚙️ إعدادات</h2><p style="margin-bottom:10px">الثيم</p><button onclick="toggleTheme();closeModal()">تغيير الثيم</button><br><br><p style="margin-bottom:10px">مسح كل البيانات المحلية</p><button onclick="clearAll()" style="color:var(--danger)">🗑️ حذف كل المشاريع</button><br><br><button onclick="closeModal()">إغلاق</button>`)
+}
+function clearAll(){if(confirm('سيتم حذف جميع المشاريع نهائيًا من هذا المتصفح. متابعة؟')){notes=[];persist();goBack();closeModal();toast('تم حذف البيانات')}}
+function openModal(html){
+ const modal = document.getElementById('modal');
+ const modalBg = document.getElementById('modalBg');
+ modal.innerHTML=html;modalBg.classList.add('show')
+}
+function closeModal(){
+ document.getElementById('modalBg').classList.remove('show')
+}
+document.getElementById('modalBg').onclick=e=>{if(e.target===document.getElementById('modalBg'))closeModal()}
+function toggleTheme(){theme=theme==='dracula'?'matrix':'dracula';localStorage.setItem('devTheme',theme);document.body.setAttribute('data-theme',theme==='dracula'?'dracula':'');document.getElementById('themeBtn').textContent=theme==='dracula'?'💚':'🌙'}
+function scrollSidebar(){document.getElementById('sidebar').scrollIntoView({behavior:'smooth'})}
+document.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}
+ if(e.key==='Escape')closeModal()
+})
+function openPalette(){
+ openModal(`<h2>⌘ Command Palette</h2><input id="pal" autofocus placeholder="اكتب أمرًا..."><div id="palList"></div>`);
+ const cmds=[['➕ مشروع جديد',()=>{closeModal();document.getElementById('titleInput').focus()}],['⭐ المفضلة',()=>{closeModal();setFilter('fav')}],['📌 المثبتة',()=>{closeModal();setFilter('pin')}],['📤 تصدير JSON',()=>{closeModal();exportJSON()}],['📥 استيراد',()=>{closeModal();document.getElementById('importFile').click()}],['🌙 تغيير الثيم',()=>{closeModal();toggleTheme()}],['⚙️ الإعدادات',()=>{closeModal();openSettings()}]];
+ const list=document.getElementById('palList');function draw(q=''){list.innerHTML=cmds.filter(x=>x[0].toLowerCase().includes(q.toLowerCase())).map((x,i)=>`<div class="palette-item" data-i="${i}">${x[0]}</div>`).join('');list.querySelectorAll('.palette-item').forEach(el=>el.onclick=()=>cmds[+el.dataset.i][1]())}
+ const pal = document.getElementById('pal');
+ draw('');pal.oninput=()=>draw(pal.value);pal.focus()
+}
+document.body.setAttribute('data-theme',theme==='dracula'?'dracula':'');document.getElementById('themeBtn').textContent=theme==='dracula'?'💚':'🌙';changeFont(0);renderNotes();updateStats();
+</script>
+</body>
+</html>
