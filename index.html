@@ -1,21 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117">
 <title>DEV_NOTE v3.0 — مدير أكواد المطور</title>
-<meta name="description" content="مدير أكواد ومشاريع للمطورين مع تسجيل دخول Google وحفظ سحابي لكل مستخدم." />
 <style>
 :root{
-  --bg:#0d1117; --panel:#161b22; --input:#21262d; --code:#05070a; --text:#c9d1d9;
-  --muted:#6e7681; --border:#30363d; --accent:#00ff66; --danger:#ff7b72; --blue:#58a6ff;
+ --bg:#0d1117;--panel:#161b22;--input:#21262d;--code:#05070a;--text:#c9d1d9;
+ --muted:#6e7681;--border:#30363d;--accent:#00ff66;--danger:#ff7b72;--blue:#58a6ff;
 }
-body[data-theme="dracula"]{
-  --bg:#282a36; --panel:#1e1f2b; --input:#363847; --code:#1a1b26; --text:#f8f8f2;
-  --muted:#8b8d9b; --border:#44475a; --accent:#bd93f9; --danger:#ff5555; --blue:#8be9fd;
-}
+[data-theme="dracula"]{--bg:#282a36;--panel:#1e1f2b;--input:#363847;--code:#1a1b26;--text:#f8f8f2;--muted:#8b8d9b;--border:#44475a;--accent:#bd93f9;--danger:#ff5555;--blue:#8be9fd}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Courier New",monospace;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:"Courier New",monospace;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .app{display:flex;height:100vh}
@@ -30,6 +27,8 @@ button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 .form input,.form textarea,.form select,.search{width:100%;background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:9px;margin-bottom:8px;outline:none}
 .form input:focus,.form textarea:focus,.form select:focus,.search:focus{border-color:var(--accent)}
 .form textarea{resize:vertical;min-height:80px}
+.row{display:flex;gap:7px}
+.row>*{flex:1}
 .search{margin-top:10px}
 .filters{display:flex;gap:6px;margin:7px 0;overflow:auto}
 .filter{white-space:nowrap;font-size:.72rem}
@@ -44,14 +43,13 @@ button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 .badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
 .badge{font-size:.65rem;padding:2px 5px;border-radius:4px;background:var(--border);color:var(--blue)}
 .icon{border:0;padding:3px;background:transparent}
-.icon.fav{color:#ffd33d}
-.icon.pin{color:var(--accent)}
+.icon.fav{color:#ffd33d}.icon.pin{color:var(--accent)}
 .stats{border-top:1px solid var(--border);padding-top:9px;margin-top:8px;font-size:.7rem;display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .stats b{color:var(--accent)}
 .backup{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
 .header{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:11px;margin-bottom:10px}
 .title-area{display:flex;align-items:center;gap:8px;min-width:0}
-.view-title{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#viewTitle{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tag{color:var(--accent);font-size:.75rem}
 .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .editor-tools{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
@@ -62,517 +60,230 @@ button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 .code-display{margin:0;color:#e6edf3;font-size:var(--code-size,.88rem);line-height:1.6;white-space:pre;tab-size:4}
 .code-edit{width:100%;height:100%;min-height:300px;background:transparent;border:0;outline:0;color:#e6edf3;resize:none;font-size:var(--code-size,.88rem);line-height:1.6;white-space:pre;tab-size:4}
 .wrap .code-display,.wrap .code-edit{white-space:pre-wrap;overflow-wrap:anywhere}
-.hl-key{color:#ff7b72}.hl-str{color:#a5d6ff}.hl-num{color:#79c0ff}
-.hl-com{color:#8b949e;font-style:italic}.hl-fn{color:#d2a8ff}.hl-tag{color:#7ee787}
-.modal-bg{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:15px;z-index:20}
+.hl-key{color:#ff7b72}.hl-str{color:#a5d6ff}.hl-num{color:#79c0ff}.hl-com{color:#8b949e;font-style:italic}.hl-fn{color:#d2a8ff}.hl-tag{color:#7ee787}
+.modal-bg{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:15px;z-index:20}
+.modal-bg.show{display:flex}
 .modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:15px}
 .modal h2{color:var(--accent);margin-bottom:10px;font-size:1rem}
 .modal textarea,.modal input,.modal select{width:100%;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:9px;margin-bottom:8px;outline:0}
 .modal textarea{min-height:300px}
-.palette-item{padding:10px;border:1px solid transparent;border-radius:6px;cursor:pointer}
-.palette-item:hover{border-color:var(--accent);color:var(--accent)}
-.preview{width:100%;height:65vh;background:#fff;border:0;border-radius:6px}
+.palette-item{padding:10px;border:1px solid transparent;border-radius:6px;cursor:pointer}.palette-item:hover{border-color:var(--accent);color:var(--accent)}
+.preview{width:100%;height:65vh;background:white;border:0;border-radius:6px}
 .empty{padding:25px;text-align:center;color:var(--muted);font-size:.8rem}
-.toast{position:fixed;bottom:18px;left:18px;background:var(--panel);border:1px solid var(--accent);color:var(--text);padding:10px 14px;border-radius:7px;z-index:50}
+.toast{position:fixed;bottom:18px;left:18px;background:var(--panel);border:1px solid var(--accent);color:var(--text);padding:10px 14px;border-radius:7px;display:none;z-index:50}
+.toast.show{display:block}
 .version{border:1px solid var(--border);padding:8px;border-radius:6px;margin-bottom:6px}
 .version small{color:var(--muted)}
-.mobile-menu{display:none}
-.account{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--input);border-radius:8px;padding:7px;margin-bottom:12px}
-.account img{width:34px;height:34px;border-radius:50%;border:1px solid var(--accent)}
-.account .who{min-width:0;flex:1}
-.account .name{font-size:.78rem;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.account .mail{font-size:.66rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-card{width:min(420px,100%);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:26px;text-align:center}
-.login-card h1{color:var(--accent);font-size:1.3rem;margin-bottom:8px}
-.login-card p{color:var(--muted);font-size:.8rem;line-height:1.7;margin-bottom:20px}
-.google-btn{width:100%;border-color:var(--accent);color:var(--accent);font-weight:bold;padding:12px;font-size:.92rem}
-.google-btn:hover{background:var(--accent);color:var(--bg)}
-.login-err{color:var(--danger);font-size:.75rem;margin-top:12px}
-@media (max-width:768px){
-  .app{display:block;height:auto}
-  .sidebar{width:100%;min-width:0;border-left:0;border-bottom:2px solid var(--border)}
-  .main{height:calc(100vh - 20px);min-height:560px;padding:12px}
-  .header{align-items:flex-start}
-  .actions{justify-content:flex-start}
-  .mobile-menu{display:block}
+@media(max-width:768px){
+ body{overflow:auto;height:auto}.app{display:block;height:auto}.sidebar{width:100%;min-width:0;max-height:none;border-left:0;border-bottom:2px solid var(--border)}
+ .main{height:calc(100vh - 20px);min-height:560px;padding:12px}.header{align-items:flex-start}.actions{justify-content:flex-start}
+ .mobile-menu{display:block!important}
 }
+.mobile-menu{display:none}
 </style>
 </head>
 <body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><h1>// DEV_NOTE v3.0</h1><button onclick="toggleTheme()" id="themeBtn">🌙</button></div>
+ <div class="form">
+  <input id="titleInput" placeholder="اسم المشروع...">
+  <input id="descInput" placeholder="وصف المشروع (اختياري)...">
+  <select id="typeInput"><option>HTML / JS</option><option>CSS</option><option>C++ / GML</option><option>Python</option><option>JavaScript</option><option>TypeScript</option><option>JSON</option><option>SQL</option><option>Other</option></select>
+  <input id="tagsInput" placeholder="وسوم: لعبة, api, frontend">
+  <textarea id="codeInput" placeholder="ضع الكود هنا..."></textarea>
+  <button class="primary" onclick="saveCode()">[+] حفظ المشروع</button>
+ </div>
+ <input class="search" id="searchInput" placeholder="🔍 ابحث في الاسم أو الوسوم أو الكود..." oninput="renderNotes()">
+ <div class="filters" id="filters"></div>
+ <div class="notes" id="notesList"></div>
+ <div class="stats">
+  <div>المشاريع: <b id="projectCount">0</b></div><div>الأسطر: <b id="totalLines">0</b></div>
+  <div>المفضلة: <b id="favCount">0</b></div><div>المثبتة: <b id="pinCount">0</b></div>
+  <div>الأكثر استخدامًا: <b id="topType">—</b></div><div>آخر تعديل: <b id="lastEdit">—</b></div>
+ </div>
+ <div class="backup">
+  <button onclick="exportJSON()">📤 JSON</button><button onclick="document.getElementById('importFile').click()">📥 استيراد</button>
+  <button onclick="exportAll()">📦 تصدير الكل</button><button onclick="openSettings()">⚙️ إعدادات</button>
+  <input type="file" id="importFile" accept=".json" hidden onchange="importJSON(event)">
+ </div>
+</aside>
 
-<!-- ===== شاشة تسجيل الدخول ===== -->
-<div id="loginView" class="login" style="display:none">
-  <div class="login-card">
-    <h1>// DEV_NOTE v3.0</h1>
-    <p>مدير أكواد المطور. سجّل الدخول بحساب Google لتصبح كل مشاريعك محفوظة في حسابك الخاص ومتاحة على الهاتف والكمبيوتر.</p>
-    <button class="google-btn" id="googleBtn">🔐 تسجيل الدخول باستخدام Google</button>
-    <div class="login-err" id="loginErr"></div>
+<main class="main">
+ <div class="header">
+  <div class="title-area"><button class="mobile-menu" onclick="scrollSidebar()">☰</button><button id="backBtn" onclick="goBack()" style="display:none">←</button><h2 id="viewTitle">اختر مشروعًا</h2><span id="viewTag" class="tag"></span></div>
+  <div class="actions">
+   <button id="editBtn" onclick="toggleEdit()" style="display:none">✏️ تعديل</button>
+   <button onclick="copyCode()">📋 نسخ</button><button onclick="shareCode()">🔗 مشاركة</button>
   </div>
+ </div>
+ <div class="editor-tools">
+  <button class="tool" onclick="changeFont(-1)">A−</button><button class="tool" onclick="changeFont(1)">A+</button>
+  <button class="tool" onclick="toggleWrap()" id="wrapBtn">↔️ التفاف: OFF</button>
+  <button class="tool" onclick="toggleFullscreen()">⛶ ملء الشاشة</button>
+  <button class="tool" id="runBtn" onclick="runPreview()" style="display:none">▶️ تشغيل Preview</button>
+  <button class="tool" id="versionsBtn" onclick="openVersions()" style="display:none">🕒 الإصدارات</button>
+ </div>
+ <div class="code-wrap" id="codeWrap"><div class="line-nos" id="lineNos">1</div><div class="code-box" id="codeBox"><pre class="code-display" id="codeDisplay">// أضف مشروعًا من القائمة الجانبية.</pre></div></div>
+</main>
 </div>
 
-<div id="bootView" class="login">
-  <div class="login-card"><h1>// DEV_NOTE v3.0</h1><p>جارٍ التحقق من الجلسة...</p></div>
-</div>
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
 
-<!-- ===== التطبيق ===== -->
-<div id="appView" class="app" style="display:none">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <h1>// DEV_NOTE v3.0</h1>
-      <button id="themeBtn">🌙</button>
-    </div>
+<script>
+const KEY='devNotes';
+let notes=JSON.parse(localStorage.getItem(KEY)||'[]').map(normalize);
+let activeId=null,isEditing=false,theme=localStorage.getItem('devTheme')||'matrix',fontSize=+(localStorage.getItem('devFont')||.88),wrap=false;
+let activeFilter='all';
 
-    <div class="account">
-      <img id="uAvatar" alt="" referrerpolicy="no-referrer" style="display:none" />
-      <div class="who"><div class="name" id="uName"></div><div class="mail" id="uMail"></div></div>
-      <button id="signOutBtn" title="تسجيل الخروج">🚪 خروج</button>
-    </div>
+function normalize(n){return {id:n.id||Date.now()+Math.random(),title:n.title||'بدون عنوان',type:n.type||'Other',code:n.code||'',desc:n.desc||'',tags:Array.isArray(n.tags)?n.tags:(n.tags?String(n.tags).split(',').map(x=>x.trim()).filter(Boolean):[]),favorite:!!n.favorite,pinned:!!n.pinned,createdAt:n.createdAt||Date.now(),updatedAt:n.updatedAt||n.createdAt||Date.now(),versions:Array.isArray(n.versions)?n.versions:[]}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(notes));updateStats()}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function saveCode(){
+ const titleInput = document.getElementById('titleInput');
+ const descInput = document.getElementById('descInput');
+ const typeInput = document.getElementById('typeInput');
+ const tagsInput = document.getElementById('tagsInput');
+ const codeInput = document.getElementById('codeInput');
 
-    <div class="form">
-      <input id="title" placeholder="اسم المشروع..." />
-      <input id="desc" placeholder="وصف المشروع (اختياري)..." />
-      <select id="type"></select>
-      <input id="tags" placeholder="وسوم: لعبة, api, frontend" />
-      <textarea id="codeInput" placeholder="ضع الكود هنا..."></textarea>
-      <button class="primary" id="saveBtn">[+] حفظ المشروع</button>
-    </div>
-
-    <input class="search" id="search" placeholder="🔍 ابحث في الاسم أو الوسوم أو الكود..." />
-    <div class="filters" id="filters"></div>
-    <div class="notes" id="notesList"></div>
-
-    <div class="stats" id="stats"></div>
-
-    <div class="backup">
-      <button id="expJson">📤 JSON</button>
-      <button id="impBtn">📥 استيراد</button>
-      <button id="expAll">📦 تصدير الكل</button>
-      <button id="settingsBtn">⚙️ إعدادات</button>
-      <input type="file" accept=".json" hidden id="fileInput" />
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="header">
-      <div class="title-area">
-        <button class="mobile-menu" id="menuBtn">☰</button>
-        <button id="backBtn" style="display:none">←</button>
-        <h2 class="view-title" id="viewTitle">اختر مشروعًا</h2>
-        <span class="tag" id="viewType"></span>
-      </div>
-      <div class="actions">
-        <button id="editBtn" style="display:none">✏️ تعديل</button>
-        <button id="copyBtn">📋 نسخ</button>
-        <button id="shareBtn">🔗 مشاركة</button>
-      </div>
-    </div>
-
-    <div class="editor-tools">
-      <button class="tool" id="fontDown">A−</button>
-      <button class="tool" id="fontUp">A+</button>
-      <button class="tool" id="wrapBtn">↔️ التفاف: OFF</button>
-      <button class="tool" id="fsBtn">⛶ ملء الشاشة</button>
-      <button class="tool" id="previewBtn" style="display:none">▶️ تشغيل Preview</button>
-      <button class="tool" id="versionsBtn" style="display:none">🕒 الإصدارات</button>
-    </div>
-
-    <div class="code-wrap" id="codeWrap">
-      <div class="line-nos" id="lineNos"><div>1</div></div>
-      <div class="code-box" id="codeBox">
-        <pre class="code-display">// أضف مشروعًا من القائمة الجانبية.</pre>
-      </div>
-    </div>
-  </main>
-</div>
-
-<div id="modalRoot"></div>
-<div id="toastRoot"></div>
-
-<script type="module">
-/* =========================================================================
-   إعدادات الاتصال بالسحابة (Lovable Cloud / Supabase)
-   إن أردت استخدام مشروعك الخاص، غيّر هاتين القيمتين فقط:
-   ========================================================================= */
-const SUPABASE_URL = "https://gliaiartmtkbcsnnzhwo.supabase.co";
-const SUPABASE_KEY = "sb_publishable_sIzjDEIaOEDYhD_qgBGZnA_tgtdZbjL";
-/* ملاحظة: هذا المفتاح عام (publishable) ومصمّم للاستخدام في المتصفح.
-   الحماية الحقيقية تأتي من سياسات RLS في قاعدة البيانات:
-   كل مستخدم يرى ويعدّل صفوفه فقط (user_id = auth.uid()).
-
-   جدول قاعدة البيانات المطلوب (منفَّذ مسبقًا في مشروعك):
-   create table public.projects(
-     id uuid primary key default gen_random_uuid(),
-     user_id uuid not null references auth.users(id) on delete cascade,
-     title text not null, description text default '', type text default 'Other',
-     code text default '', tags text[] default '{}',
-     favorite boolean default false, pinned boolean default false,
-     versions jsonb default '[]'::jsonb,
-     created_at timestamptz default now(), updated_at timestamptz default now());
-   grant select, insert, update, delete on public.projects to authenticated;
-   alter table public.projects enable row level security;
-   create policy "own" on public.projects for all to authenticated
-     using (auth.uid() = user_id) with check (auth.uid() = user_id);
-*/
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-});
-
-/* ---------------- أدوات ---------------- */
-const $ = (id) => document.getElementById(id);
-const TYPES = ["HTML / JS","CSS","C++ / GML","Python","JavaScript","TypeScript","JSON","SQL","Other"];
-
-function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
-function highlight(code,type){
-  let x=esc(code);
-  if(/HTML/i.test(type)) x=x.replace(/(&lt;\/?)([\w-]+)([^&]*?)(\/?>)/g,'<span class="hl-tag">$1$2$3$4</span>');
-  x=x.replace(/(\/\/.*|#.*|\/\*[\s\S]*?\*\/)/g,'<span class="hl-com">$1</span>');
-  x=x.replace(/(["'`])(?:\\.|(?!\1).)*?\1/g,'<span class="hl-str">$&</span>');
-  const kw=/Python/i.test(type)
-    ? "and|as|assert|break|class|def|elif|else|for|from|if|import|in|is|lambda|not|or|pass|return|try|while|with|yield"
-    : "const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|true|false|null|undefined|public|private|void|int|float|bool|using|namespace|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE";
-  x=x.replace(new RegExp("\\b("+kw+")\\b","g"),'<span class="hl-key">$1</span>');
-  x=x.replace(/\b\d+(?:\.\d+)?\b/g,'<span class="hl-num">$&</span>');
-  x=x.replace(/\b([A-Za-z_$][\w$]*)\s*(?=\()/g,'<span class="hl-fn">$1</span>');
-  return x;
+ const title=titleInput.value.trim(),code=codeInput.value;
+ if(!title||!code.trim())return alert('أدخل اسم المشروع والكود.');
+ const n=normalize({id:Date.now(),title,desc:descInput.value.trim(),type:typeInput.value,code,tags:tagsInput.value.split(',').map(x=>x.trim()).filter(Boolean),createdAt:Date.now(),updatedAt:Date.now(),versions:[]});
+ notes.unshift(n);persist();titleInput.value=descInput.value=tagsInput.value=codeInput.value='';renderNotes();displayCode(n.id);toast('تم حفظ المشروع ✅')
 }
-function download(name,data,type){
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),500);
-}
-function toast(t){
-  const d=document.createElement("div");d.className="toast";d.textContent=t;
-  $("toastRoot").appendChild(d);setTimeout(()=>d.remove(),1800);
-}
-function closeModal(){ $("modalRoot").innerHTML=""; }
-function openModal(html){
-  $("modalRoot").innerHTML=`<div class="modal-bg"><div class="modal">${html}</div></div>`;
-  $("modalRoot").querySelector(".modal-bg").addEventListener("click",(e)=>{ if(e.target===e.currentTarget) closeModal(); });
-}
-
-/* ---------------- الحالة ---------------- */
-let user=null, notes=[], activeId=null, isEditing=false, draft="";
-let filter="all", wrapOn=false;
-let theme=localStorage.getItem("devTheme")||"matrix";
-let fontSize=+(localStorage.getItem("devFont")||0.88);
-
-function applyPrefs(){
-  document.body.dataset.theme = theme==="dracula" ? "dracula" : "";
-  document.body.style.setProperty("--code-size", fontSize+"rem");
-  $("themeBtn").textContent = theme==="dracula" ? "💚" : "🌙";
-}
-
-/* ---------------- المصادقة ---------------- */
-$("googleBtn").addEventListener("click", async ()=>{
-  $("googleBtn").disabled=true; $("googleBtn").textContent="جارٍ التحويل...";
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider:"google",
-    options:{ redirectTo: window.location.origin + window.location.pathname }
-  });
-  if(error){
-    $("loginErr").textContent="تعذر تسجيل الدخول. حاول مرة أخرى.";
-    $("googleBtn").disabled=false; $("googleBtn").textContent="🔐 تسجيل الدخول باستخدام Google";
-  }
-});
-$("signOutBtn").addEventListener("click", ()=>supabase.auth.signOut());
-
-supabase.auth.onAuthStateChange((_e,session)=>render(session));
-supabase.auth.getSession().then(({data})=>render(data.session));
-
-async function render(session){
-  $("bootView").style.display="none";
-  if(!session){
-    user=null; notes=[];
-    $("loginView").style.display="flex"; $("appView").style.display="none";
-    return;
-  }
-  user=session.user;
-  $("loginView").style.display="none";
-  $("appView").style.display="";
-  const m=user.user_metadata||{};
-  const av=m.avatar_url||m.picture||"";
-  if(av){ $("uAvatar").src=av; $("uAvatar").style.display=""; }
-  $("uName").textContent=m.full_name||m.name||user.email||"مستخدم";
-  $("uMail").textContent=user.email||"";
-  applyPrefs();
-  await loadNotes();
-}
-
-/* ---------------- CRUD ---------------- */
-async function loadNotes(){
-  const {data,error}=await supabase.from("projects").select("*")
-    .order("pinned",{ascending:false}).order("updated_at",{ascending:false});
-  if(error) return toast("خطأ في التحميل: "+error.message);
-  notes=(data||[]).map(n=>({...n,tags:n.tags||[],versions:n.versions||[]}));
-  renderList(); renderMain();
-}
-
-async function saveCode(){
-  const t=$("title").value.trim(), c=$("codeInput").value;
-  if(!t||!c.trim()) return alert("أدخل اسم المشروع والكود.");
-  const {data,error}=await supabase.from("projects").insert({
-    user_id:user.id, title:t, description:$("desc").value.trim(), type:$("type").value, code:c,
-    tags:$("tags").value.split(",").map(x=>x.trim()).filter(Boolean)
-  }).select().single();
-  if(error) return toast("خطأ: "+error.message);
-  notes.unshift({...data,tags:data.tags||[],versions:data.versions||[]});
-  $("title").value=$("desc").value=$("tags").value=$("codeInput").value="";
-  activeId=data.id; isEditing=false;
-  renderList(); renderMain(); toast("تم حفظ المشروع ✅");
-}
-
-async function patch(id,fields){
-  const n=notes.find(x=>x.id===id); if(!n) return;
-  Object.assign(n,fields,{updated_at:new Date().toISOString()});
-  renderList(); renderMain();
-  const {error}=await supabase.from("projects").update(fields).eq("id",id);
-  if(error) toast("خطأ: "+error.message);
-}
-
-async function deleteCode(id){
-  if(!confirm("حذف المشروع؟")) return;
-  notes=notes.filter(n=>n.id!==id);
-  if(activeId===id){activeId=null;isEditing=false;}
-  renderList(); renderMain();
-  const {error}=await supabase.from("projects").delete().eq("id",id);
-  if(error) return toast("خطأ: "+error.message);
-  toast("تم الحذف");
-}
-
-const active=()=>notes.find(n=>n.id===activeId)||null;
-
-function toggleEdit(){
-  const n=active(); if(!n) return;
-  if(isEditing){
-    const box=$("codeBox").querySelector(".code-edit");
-    draft=box?box.value:draft;
-    const versions = n.code!==draft ? [{code:n.code,date:Date.parse(n.updated_at)},...n.versions] : n.versions;
-    patch(n.id,{code:draft,versions});
-    isEditing=false; renderMain(); toast("تم حفظ التعديل 💾"); return;
-  }
-  draft=n.code; isEditing=true; renderMain();
-}
-
-function restoreVersion(i){
-  const n=active(); if(!n) return;
-  const v=n.versions[i];
-  patch(n.id,{code:v.code,versions:[{code:n.code,date:Date.now()},...n.versions]});
-  closeModal(); toast("تمت الاستعادة");
-}
-
-/* ---------------- العرض ---------------- */
-function visibleNotes(){
-  const q=$("search").value.trim().toLowerCase();
-  return notes.filter(n=>
-    (filter==="all"||(filter==="fav"&&n.favorite)||(filter==="pin"&&n.pinned)||n.tags.includes(filter)) &&
-    (!q||(n.title+" "+n.type+" "+n.description+" "+n.tags.join(" ")+" "+n.code).toLowerCase().includes(q))
-  ).sort((a,b)=>(b.pinned-a.pinned)||(Date.parse(b.updated_at)-Date.parse(a.updated_at)));
-}
-
 function renderFilters(){
-  const allTags=[...new Set(notes.flatMap(n=>n.tags))].slice(0,20);
-  const btn=(k,l)=>`<button class="filter ${filter===k?"active":""}" data-f="${esc(k)}">${esc(l)}</button>`;
-  $("filters").innerHTML=btn("all","الكل")+btn("fav","⭐ المفضلة")+btn("pin","📌 المثبتة")+allTags.map(t=>btn(t,"#"+t)).join("");
-  $("filters").querySelectorAll("button").forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderList();});
+ const tags=[...new Set(notes.flatMap(n=>n.tags))].slice(0,20);
+ document.getElementById('filters').innerHTML='<button class="filter '+(activeFilter==='all'?'active':'')+'" onclick="setFilter(\'all\')">الكل</button><button class="filter '+(activeFilter==='fav'?'active':'')+'" onclick="setFilter(\'fav\')">⭐ المفضلة</button><button class="filter '+(activeFilter==='pin'?'active':'')+'" onclick="setFilter(\'pin\')">📌 المثبتة</button>'+tags.map(t=>`<button class="filter ${activeFilter===t?'active':''}" onclick="setFilter(${JSON.stringify(t)})">#${esc(t)}</button>`).join('')
 }
-
-function renderStats(){
-  const counts={}; notes.forEach(n=>counts[n.type]=(counts[n.type]||0)+1);
-  const top=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||"—";
-  const last=notes.length?new Date(Math.max(...notes.map(n=>Date.parse(n.updated_at)))).toLocaleDateString("ar-TN"):"—";
-  $("stats").innerHTML=`
-    <div>المشاريع: <b>${notes.length}</b></div>
-    <div>الأسطر: <b>${notes.reduce((s,n)=>s+(n.code?n.code.split("\n").length:0),0)}</b></div>
-    <div>المفضلة: <b>${notes.filter(n=>n.favorite).length}</b></div>
-    <div>المثبتة: <b>${notes.filter(n=>n.pinned).length}</b></div>
-    <div>الأكثر استخدامًا: <b>${esc(top)}</b></div>
-    <div>آخر تعديل: <b>${last}</b></div>`;
+function setFilter(f){activeFilter=f;renderNotes()}
+function renderNotes(){
+ renderFilters();const q=document.getElementById('searchInput').value.trim().toLowerCase();
+ let arr=notes.filter(n=>(activeFilter==='all'||(activeFilter==='fav'&&n.favorite)||(activeFilter==='pin'&&n.pinned)||n.tags.includes(activeFilter))&&(!q||(n.title+' '+n.type+' '+n.desc+' '+n.tags.join(' ')+' '+n.code).toLowerCase().includes(q)));
+ arr.sort((a,b)=>(b.pinned-a.pinned)||(b.updatedAt-a.updatedAt));
+ document.getElementById('notesList').innerHTML=arr.length?arr.map(n=>`<div class="note ${n.id===activeId?'active':''} ${n.pinned?'pinned':''}">
+ <div class="note-main" onclick="displayCode(${n.id})"><div class="note-title">${esc(n.title)}</div><div class="badges"><span class="badge">${esc(n.type)}</span>${n.tags.slice(0,3).map(t=>`<span class="badge">#${esc(t)}</span>`).join('')}</div><div class="note-meta">${new Date(n.updatedAt).toLocaleString('ar-TN')}</div></div>
+ <button class="icon fav" onclick="event.stopPropagation();toggleFav(${n.id})">${n.favorite?'★':'☆'}</button><button class="icon pin" onclick="event.stopPropagation();togglePin(${n.id})">${n.pinned?'📌':'📍'}</button><button class="icon" onclick="event.stopPropagation();deleteCode(${n.id})">🗑️</button></div>`).join(''):'<div class="empty">لا توجد نتائج.</div>';
+ updateStats()
 }
-
-function renderList(){
-  renderFilters(); renderStats();
-  const list=visibleNotes();
-  $("notesList").innerHTML = list.length ? list.map(n=>`
-    <div class="note ${n.id===activeId?"active":""} ${n.pinned?"pinned":""}">
-      <div class="note-main" data-open="${esc(n.id)}">
-        <div class="note-title">${esc(n.title)}</div>
-        <div class="badges"><span class="badge">${esc(n.type)}</span>${n.tags.slice(0,3).map(t=>`<span class="badge">#${esc(t)}</span>`).join("")}</div>
-        <div class="note-meta">${new Date(n.updated_at).toLocaleString("ar-TN")}</div>
-      </div>
-      <button class="icon fav" data-fav="${esc(n.id)}">${n.favorite?"★":"☆"}</button>
-      <button class="icon pin" data-pin="${esc(n.id)}">${n.pinned?"📌":"📍"}</button>
-      <button class="icon" data-del="${esc(n.id)}">🗑️</button>
-    </div>`).join("") : `<div class="empty">لا توجد نتائج.</div>`;
-
-  $("notesList").querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>{activeId=el.dataset.open;isEditing=false;renderList();renderMain();});
-  $("notesList").querySelectorAll("[data-fav]").forEach(el=>el.onclick=()=>{const n=notes.find(x=>x.id===el.dataset.fav);patch(n.id,{favorite:!n.favorite});});
-  $("notesList").querySelectorAll("[data-pin]").forEach(el=>el.onclick=()=>{const n=notes.find(x=>x.id===el.dataset.pin);patch(n.id,{pinned:!n.pinned});});
-  $("notesList").querySelectorAll("[data-del]").forEach(el=>el.onclick=()=>deleteCode(el.dataset.del));
+function updateStats(){
+ document.getElementById('projectCount').textContent=notes.length;
+ document.getElementById('totalLines').textContent=notes.reduce((s,n)=>s+(n.code?n.code.split('\n').length:0),0);
+ document.getElementById('favCount').textContent=notes.filter(n=>n.favorite).length;
+ document.getElementById('pinCount').textContent=notes.filter(n=>n.pinned).length;
+ const c={};notes.forEach(n=>c[n.type]=(c[n.type]||0)+1);
+ document.getElementById('topType').textContent=Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||'—';
+ document.getElementById('lastEdit').textContent=notes.length?new Date(Math.max(...notes.map(n=>n.updatedAt))).toLocaleDateString('ar-TN'):'—'
 }
-
-function renderMain(){
-  const n=active();
-  $("viewTitle").textContent = n ? ">_ "+n.title : "اختر مشروعًا";
-  $("viewType").textContent = n ? "["+n.type+"]" : "";
-  $("backBtn").style.display = n ? "" : "none";
-  $("editBtn").style.display = n ? "" : "none";
-  $("editBtn").textContent = isEditing ? "💾 حفظ" : "✏️ تعديل";
-  $("versionsBtn").style.display = n ? "" : "none";
-  $("previewBtn").style.display = (n && /HTML|JavaScript|JS/i.test(n.type)) ? "" : "none";
-  $("codeWrap").className = "code-wrap"+(wrapOn?" wrap":"");
-
-  const text = n ? (isEditing?draft:n.code) : "// أضف مشروعًا من القائمة الجانبية.";
-  $("codeBox").innerHTML = n && isEditing
-    ? `<textarea class="code-edit"></textarea>`
-    : `<pre class="code-display">${n?highlight(n.code,n.type):esc(text)}</pre>`;
-  if(n&&isEditing){
-    const ta=$("codeBox").querySelector(".code-edit");
-    ta.value=draft; ta.oninput=()=>{draft=ta.value;renderLineNos(draft);};
-  }
-  renderLineNos(text);
+function displayCode(id){
+ activeId=id;const n=notes.find(x=>x.id===id);if(!n)return;
+ document.getElementById('viewTitle').textContent='>_ '+n.title;
+ document.getElementById('viewTag').textContent='['+n.type+']';
+ document.getElementById('backBtn').style.display='inline-block';
+ document.getElementById('editBtn').style.display='inline-block';
+ document.getElementById('versionsBtn').style.display='inline-block';
+ document.getElementById('runBtn').style.display=/HTML|JavaScript|JS/i.test(n.type)?'inline-block':'none';
+ document.getElementById('codeBox').innerHTML=`<pre class="code-display" id="codeDisplay">${highlight(n.code,n.type)}</pre>`;
+ updateLines(n.code);renderNotes();
 }
-function renderLineNos(text){
-  const c=text.split("\n").length;
-  $("lineNos").innerHTML=Array.from({length:c},(_,i)=>`<div>${i+1}</div>`).join("");
+function highlight(code,type){
+ let x=esc(code);
+ const isHTML=/HTML/i.test(type), isPy=/Python/i.test(type), isSQL=/SQL/i.test(type);
+ if(isHTML){x=x.replace(/(&lt;\/?)([\w-]+)([^&]*?)(\/?>)/g,'<span class="hl-tag">$1$2$3$4</span>')}
+ x=x.replace(/(\/\/.*|#.*|\/\*[\s\S]*?\*\/)/g,'<span class="hl-com">$1</span>');
+ x=x.replace(/(["'`])(?:\\.|(?!\1).)*?\1/g,'<span class="hl-str">$&</span>');
+ const kw=isPy?'and|as|assert|break|class|def|elif|else|for|from|if|import|in|is|lambda|not|or|pass|return|try|while|with|yield':'const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|true|false|null|undefined|public|private|void|int|float|bool|using|namespace|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE';
+ x=x.replace(new RegExp('\\b('+kw+')\\b','g'),'<span class="hl-key">$1</span>');
+ x=x.replace(/\b\d+(?:\.\d+)?\b/g,'<span class="hl-num">$&</span>');
+ x=x.replace(/\b([A-Za-z_$][\w$]*)\s*(?=\()/g,'<span class="hl-fn">$1</span>');
+ return x
 }
-
-/* ---------------- الأدوات ---------------- */
-function copyCode(){
-  const n=active(); if(!n) return;
-  navigator.clipboard?.writeText(n.code).then(()=>toast("تم النسخ 📋")).catch(()=>alert("تعذر النسخ تلقائيًا."));
+function updateLines(code){
+ const c=code?code.split('\n').length:1;
+ document.getElementById('lineNos').innerHTML=Array.from({length:c},(_,i)=>i+1).join('<br>');
+ document.documentElement.style.setProperty('--code-size',fontSize+'rem')
 }
-async function shareCode(){
-  const n=active(); if(!n) return;
-  const text=`${n.title}\n\n${n.code}`;
-  if(navigator.share){ try{ await navigator.share({title:n.title,text}); }catch{} }
-  else { await navigator.clipboard.writeText(text); toast("تم نسخ النص للمشاركة"); }
+function toggleFav(id){const n=notes.find(x=>x.id===id);n.favorite=!n.favorite;n.updatedAt=Date.now();persist();renderNotes()}
+function togglePin(id){const n=notes.find(x=>x.id===id);n.pinned=!n.pinned;n.updatedAt=Date.now();persist();renderNotes()}
+function deleteCode(id){if(!confirm('حذف المشروع؟'))return;notes=notes.filter(n=>n.id!==id);persist();if(activeId===id)goBack();renderNotes();toast('تم الحذف')}
+function goBack(){
+ activeId=null;
+ document.getElementById('viewTitle').textContent='اختر مشروعًا';
+ document.getElementById('viewTag').textContent='';
+ document.getElementById('backBtn').style.display='none';
+ document.getElementById('editBtn').style.display='none';
+ document.getElementById('runBtn').style.display='none';
+ document.getElementById('versionsBtn').style.display='none';
+ document.getElementById('codeBox').innerHTML='<pre class="code-display">// أضف مشروعًا من القائمة الجانبية.</pre>';
+ document.getElementById('lineNos').textContent='1';
+ renderNotes()
 }
-function changeFont(v){
-  fontSize=Math.min(1.5,Math.max(0.6,fontSize+v*0.08));
-  localStorage.setItem("devFont",String(fontSize)); applyPrefs();
+function toggleEdit(){
+ const n=notes.find(x=>x.id===activeId);if(!n)return;
+ if(isEditing){saveEdit();return} isEditing=true;document.getElementById('editBtn').textContent='💾 حفظ';
+ document.getElementById('codeBox').innerHTML=`<textarea class="code-edit" id="codeEdit">${esc(n.code)}</textarea>`;
+ document.getElementById('codeEdit').value=n.code;
 }
-function toggleTheme(){
-  theme = theme==="dracula" ? "matrix" : "dracula";
-  localStorage.setItem("devTheme",theme); applyPrefs();
+function saveEdit(){
+ const n=notes.find(x=>x.id===activeId),area=document.getElementById('codeEdit');if(!n||!area)return;
+ if(n.code!==area.value)n.versions.unshift({code:n.code,date:n.updatedAt});
+ n.code=area.value;n.updatedAt=Date.now();isEditing=false;document.getElementById('editBtn').textContent='✏️ تعديل';persist();displayCode(n.id);toast('تم حفظ التعديل 💾')
 }
+function copyCode(){const n=notes.find(x=>x.id===activeId);if(!n)return;navigator.clipboard?.writeText(n.code).then(()=>toast('تم النسخ 📋')).catch(()=>alert('تعذر النسخ تلقائيًا.'))}
+async function shareCode(){const n=notes.find(x=>x.id===activeId);if(!n)return;const text=`${n.title}\n\n${n.code}`;if(navigator.share){try{await navigator.share({title:n.title,text})}catch(e){}}else{await navigator.clipboard.writeText(text);toast('تم نسخ النص للمشاركة')}}
+function changeFont(v){fontSize=Math.min(1.5,Math.max(.6,fontSize+v*.08));localStorage.setItem('devFont',fontSize);document.documentElement.style.setProperty('--code-size',fontSize+'rem')}
+function toggleWrap(){wrap=!wrap;document.getElementById('codeWrap').classList.toggle('wrap',wrap);document.getElementById('wrapBtn').textContent='↔️ التفاف: '+(wrap?'ON':'OFF')}
+function toggleFullscreen(){const el=document.querySelector('.code-wrap');document.fullscreenElement?document.exitFullscreen():el.requestFullscreen?.()}
 function runPreview(){
-  const n=active(); if(!n) return;
-  let src=n.code;
-  if(!/<html/i.test(src)) src=`<!doctype html><html><head><meta charset="utf-8"></head><body><script>${src.replace(/<\/script/gi,"<\\/script")}<\/script></body></html>`;
-  openModal(`<h2>▶️ Preview</h2><iframe class="preview" sandbox="allow-scripts"></iframe><br><button data-x>إغلاق</button>`);
-  $("modalRoot").querySelector("iframe").srcdoc=src;
-  $("modalRoot").querySelector("[data-x]").onclick=closeModal;
+ const n=notes.find(x=>x.id===activeId);if(!n)return;
+ let src=n.code;
+ if(!/<html/i.test(src))src=`<!doctype html><html><head><meta charset="utf-8"></head><body><script>${src.replace(/<\/script/gi,'<\\/script')}<\/script></body></html>`;
+ openModal(`<h2>▶️ Preview</h2><iframe class="preview" sandbox="allow-scripts" srcdoc="${esc(src)}"></iframe><br><button onclick="closeModal()">إغلاق</button>`)
 }
 function openVersions(){
-  const n=active(); if(!n) return;
-  const body = n.versions.length ? n.versions.map((v,i)=>`
-    <div class="version"><b>الإصدار السابق #${i+1}</b><br><small>${new Date(v.date).toLocaleString("ar-TN")}</small><br>
-    <button data-r="${i}">استعادة</button> <button data-v="${i}">عرض</button></div>`).join("")
-    : `<div class="empty">لا توجد إصدارات سابقة.</div>`;
-  openModal(`<h2>🕒 سجل الإصدارات</h2>${body}<button data-x>إغلاق</button>`);
-  const r=$("modalRoot");
-  r.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>restoreVersion(+b.dataset.r));
-  r.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
-    openModal(`<h2>الإصدار السابق</h2><textarea readonly>${esc(n.versions[+b.dataset.v].code)}</textarea><button data-b>رجوع</button> <button data-x>إغلاق</button>`);
-    $("modalRoot").querySelector("[data-b]").onclick=openVersions;
-    $("modalRoot").querySelector("[data-x]").onclick=closeModal;
-  });
-  r.querySelector("[data-x]").onclick=closeModal;
+ const n=notes.find(x=>x.id===activeId);if(!n)return;
+ openModal(`<h2>🕒 سجل الإصدارات</h2>${n.versions.length?n.versions.map((v,i)=>`<div class="version"><b>الإصدار السابق #${i+1}</b><br><small>${new Date(v.date).toLocaleString('ar-TN')}</small><br><button onclick="restoreVersion(${i})">استعادة</button><button onclick="viewVersion(${i})">عرض</button></div>`).join(''):'<div class="empty">لا توجد إصدارات سابقة.</div>'}<button onclick="closeModal()">إغلاق</button>`)
+}
+function viewVersion(i){const n=notes.find(x=>x.id===activeId),v=n.versions[i];openModal(`<h2>الإصدار السابق</h2><textarea readonly>${esc(v.code)}</textarea><button onclick="closeModal()">إغلاق</button>`)}
+function restoreVersion(i){const n=notes.find(x=>x.id===activeId),v=n.versions[i];n.versions.unshift({code:n.code,date:Date.now()});n.code=v.code;n.updatedAt=Date.now();persist();closeModal();displayCode(n.id);toast('تمت الاستعادة')}
+function exportJSON(){if(!notes.length)return alert('لا توجد مشاريع.');download('devnote_backup.json',JSON.stringify(notes,null,2),'application/json')}
+function exportAll(){
+ if(!notes.length)return alert('لا توجد مشاريع.');
+ let files=notes.map(n=>`===== ${n.title} =====\n${n.code}`).join('\n\n');
+ download('devnote_all.txt',files,'text/plain')
+}
+function download(name,data,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function importJSON(e){
+ const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x))throw Error('صيغة غير صحيحة');x.forEach(n=>notes.push(normalize({...n,id:Date.now()+Math.random()})));persist();renderNotes();toast('تم الاستيراد 📥')}catch(err){alert('خطأ: '+err.message)}e.target.value=''};r.readAsText(f)
 }
 function openSettings(){
-  openModal(`<h2>⚙️ إعدادات</h2>
-    <p style="margin-bottom:10px">الثيم</p><button data-t>تغيير الثيم</button><br><br>
-    <p style="margin-bottom:10px">الحساب: ${esc(user?.email||"")}</p><button data-o>🚪 تسجيل الخروج</button><br><br>
-    <p style="margin-bottom:10px">مسح كل بيانات حسابك</p>
-    <button data-c style="color:var(--danger)">🗑️ حذف كل المشاريع</button><br><br><button data-x>إغلاق</button>`);
-  const r=$("modalRoot");
-  r.querySelector("[data-t]").onclick=()=>{toggleTheme();closeModal();};
-  r.querySelector("[data-o]").onclick=()=>supabase.auth.signOut();
-  r.querySelector("[data-c]").onclick=clearAll;
-  r.querySelector("[data-x]").onclick=closeModal;
+ openModal(`<h2>⚙️ إعدادات</h2><p style="margin-bottom:10px">الثيم</p><button onclick="toggleTheme();closeModal()">تغيير الثيم</button><br><br><p style="margin-bottom:10px">مسح كل البيانات المحلية</p><button onclick="clearAll()" style="color:var(--danger)">🗑️ حذف كل المشاريع</button><br><br><button onclick="closeModal()">إغلاق</button>`)
 }
-async function clearAll(){
-  if(!confirm("سيتم حذف جميع مشاريعك نهائيًا. متابعة؟")) return;
-  const {error}=await supabase.from("projects").delete().eq("user_id",user.id);
-  if(error) return toast("خطأ: "+error.message);
-  notes=[];activeId=null;isEditing=false;closeModal();renderList();renderMain();toast("تم حذف البيانات");
+function clearAll(){if(confirm('سيتم حذف جميع المشاريع نهائيًا من هذا المتصفح. متابعة؟')){notes=[];persist();goBack();closeModal();toast('تم حذف البيانات')}}
+function openModal(html){
+ const modal = document.getElementById('modal');
+ const modalBg = document.getElementById('modalBg');
+ modal.innerHTML=html;modalBg.classList.add('show')
 }
-function exportJSON(){ if(!notes.length) return alert("لا توجد مشاريع."); download("devnote_backup.json",JSON.stringify(notes,null,2),"application/json"); }
-function exportAll(){ if(!notes.length) return alert("لا توجد مشاريع."); download("devnote_all.txt",notes.map(n=>`===== ${n.title} =====\n${n.code}`).join("\n\n"),"text/plain"); }
-function importJSON(e){
-  const f=e.target.files?.[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=async()=>{
-    try{
-      const x=JSON.parse(String(r.result));
-      if(!Array.isArray(x)) throw new Error("صيغة غير صحيحة");
-      const rows=x.map(n=>({
-        user_id:user.id, title:String(n.title??"بدون عنوان"),
-        description:String(n.description??n.desc??""), type:String(n.type??"Other"),
-        code:String(n.code??""),
-        tags:Array.isArray(n.tags)?n.tags:String(n.tags??"").split(",").map(t=>t.trim()).filter(Boolean),
-        favorite:!!n.favorite, pinned:!!n.pinned, versions:Array.isArray(n.versions)?n.versions:[]
-      }));
-      const {error}=await supabase.from("projects").insert(rows);
-      if(error) throw new Error(error.message);
-      await loadNotes(); toast("تم الاستيراد 📥");
-    }catch(err){ alert("خطأ: "+err.message); }
-    e.target.value="";
-  };
-  r.readAsText(f);
+function closeModal(){
+ document.getElementById('modalBg').classList.remove('show')
 }
-
-/* ---------------- الربط ---------------- */
-$("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
-$("saveBtn").onclick=saveCode;
-$("search").oninput=renderList;
-$("themeBtn").onclick=toggleTheme;
-$("backBtn").onclick=()=>{activeId=null;isEditing=false;renderList();renderMain();};
-$("editBtn").onclick=toggleEdit;
-$("copyBtn").onclick=copyCode;
-$("shareBtn").onclick=shareCode;
-$("fontUp").onclick=()=>changeFont(1);
-$("fontDown").onclick=()=>changeFont(-1);
-$("wrapBtn").onclick=()=>{wrapOn=!wrapOn;$("wrapBtn").textContent="↔️ التفاف: "+(wrapOn?"ON":"OFF");renderMain();};
-$("fsBtn").onclick=()=>{ document.fullscreenElement?document.exitFullscreen():$("codeWrap").requestFullscreen?.(); };
-$("previewBtn").onclick=runPreview;
-$("versionsBtn").onclick=openVersions;
-$("settingsBtn").onclick=openSettings;
-$("expJson").onclick=exportJSON;
-$("expAll").onclick=exportAll;
-$("impBtn").onclick=()=>$("fileInput").click();
-$("fileInput").onchange=importJSON;
-$("menuBtn").onclick=()=>$("sidebar").scrollIntoView({behavior:"smooth"});
-
-/* Command Palette — Ctrl+K */
-const COMMANDS=[
-  ["➕ مشروع جديد",()=>{closeModal();$("title").focus();}],
-  ["⭐ المفضلة",()=>{closeModal();filter="fav";renderList();}],
-  ["📌 المثبتة",()=>{closeModal();filter="pin";renderList();}],
-  ["📤 تصدير JSON",()=>{closeModal();exportJSON();}],
-  ["📥 استيراد",()=>{closeModal();$("fileInput").click();}],
-  ["🌙 تغيير الثيم",()=>{closeModal();toggleTheme();}],
-  ["⚙️ الإعدادات",()=>openSettings()],
-  ["🚪 تسجيل الخروج",()=>{closeModal();supabase.auth.signOut();}]
-];
-function openPalette(q=""){
-  openModal(`<h2>⌘ Command Palette</h2><input id="pq" placeholder="اكتب أمرًا..." value="${esc(q)}"/><div id="plist"></div>`);
-  const draw=()=>{
-    const v=$("pq").value.toLowerCase();
-    $("plist").innerHTML=COMMANDS.filter(([l])=>l.toLowerCase().includes(v)).map(([l],i)=>`<div class="palette-item" data-i="${COMMANDS.findIndex(c=>c[0]===l)}">${l}</div>`).join("");
-    $("plist").querySelectorAll("[data-i]").forEach(el=>el.onclick=()=>COMMANDS[+el.dataset.i][1]());
-  };
-  $("pq").oninput=draw; draw(); $("pq").focus();
+document.getElementById('modalBg').onclick=e=>{if(e.target===document.getElementById('modalBg'))closeModal()}
+function toggleTheme(){theme=theme==='dracula'?'matrix':'dracula';localStorage.setItem('devTheme',theme);document.body.setAttribute('data-theme',theme==='dracula'?'dracula':'');document.getElementById('themeBtn').textContent=theme==='dracula'?'💚':'🌙'}
+function scrollSidebar(){document.getElementById('sidebar').scrollIntoView({behavior:'smooth'})}
+document.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}
+ if(e.key==='Escape')closeModal()
+})
+function openPalette(){
+ openModal(`<h2>⌘ Command Palette</h2><input id="pal" autofocus placeholder="اكتب أمرًا..."><div id="palList"></div>`);
+ const cmds=[['➕ مشروع جديد',()=>{closeModal();document.getElementById('titleInput').focus()}],['⭐ المفضلة',()=>{closeModal();setFilter('fav')}],['📌 المثبتة',()=>{closeModal();setFilter('pin')}],['📤 تصدير JSON',()=>{closeModal();exportJSON()}],['📥 استيراد',()=>{closeModal();document.getElementById('importFile').click()}],['🌙 تغيير الثيم',()=>{closeModal();toggleTheme()}],['⚙️ الإعدادات',()=>{closeModal();openSettings()}]];
+ const list=document.getElementById('palList');function draw(q=''){list.innerHTML=cmds.filter(x=>x[0].toLowerCase().includes(q.toLowerCase())).map((x,i)=>`<div class="palette-item" data-i="${i}">${x[0]}</div>`).join('');list.querySelectorAll('.palette-item').forEach(el=>el.onclick=()=>cmds[+el.dataset.i][1]())}
+ const pal = document.getElementById('pal');
+ draw('');pal.oninput=()=>draw(pal.value);pal.focus()
 }
-document.addEventListener("keydown",(e)=>{
-  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){ e.preventDefault(); openPalette(); }
-  if(e.key==="Escape") closeModal();
-});
-
-applyPrefs();
+document.body.setAttribute('data-theme',theme==='dracula'?'dracula':'');document.getElementById('themeBtn').textContent=theme==='dracula'?'💚':'🌙';changeFont(0);renderNotes();updateStats();
 </script>
 </body>
 </html>
